@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "#F#",
+    "###"
+  ],
+  "key": {
+    "#": "minecraft:cobblestone",
+    "F": "minecraft:furnace"
+  },
+  "result": {
+    "id": "lava-mania:lava_generator",
+    "count": 1
+  }
+}
