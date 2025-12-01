@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lava-mania:item/lava_generator"
+  }
+}
