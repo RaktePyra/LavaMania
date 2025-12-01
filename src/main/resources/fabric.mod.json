@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "lava-mania",
+	"version": "${version}",
+	"name": "Lava Mania",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/lava-mania/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"lavamaniareloaded.LavaMania"
+		],
+		"client": [
+			"lavamaniareloaded.LavaManiaClient"
+		]
+	},
+	"mixins": [
+		"lava-mania.mixins.json",
+		{
+			"config": "lava-mania.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.1",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
