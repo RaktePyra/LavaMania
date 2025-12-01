@@ -47,6 +47,6 @@ public class AddBlockMod
 
     public static void Initialise()
     {
-
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((itemGroup) -> itemGroup.accept(AddBlockMod.lava_generator));
     }
 }
