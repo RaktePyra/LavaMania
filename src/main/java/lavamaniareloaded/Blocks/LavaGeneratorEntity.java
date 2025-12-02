@@ -51,6 +51,10 @@ public class LavaGeneratorEntity extends BlockEntity
     
     public static void tick(Level world, BlockPos blockPos, BlockState blockState, LavaGeneratorEntity entity)
     {
+        if (world.isClientSide()) {
+            return; // ne rien faire côté client
+        }
+
         entity.ticksSinceLast++;
         if(entity.ticksSinceLast > 200)
         {
