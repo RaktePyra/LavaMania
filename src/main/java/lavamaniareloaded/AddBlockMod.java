@@ -1,6 +1,7 @@
 package lavamaniareloaded;
 
 import lavamaniareloaded.Blocks.ElectricGenerator;
+import lavamaniareloaded.Blocks.LavaGenerator;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -42,7 +43,7 @@ public class AddBlockMod
 
     public static final Block lava_generator = register(
             "lava_generator",
-            Block::new,
+            LavaGenerator::new,
             BlockBehaviour.Properties.of().sound(SoundType.STONE),
             true
     );

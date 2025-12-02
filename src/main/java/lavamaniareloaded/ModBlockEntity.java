@@ -1,6 +1,7 @@
 package lavamaniareloaded;
 
 import lavamaniareloaded.Blocks.ElectricGeneratorEntity;
+import lavamaniareloaded.Blocks.LavaGeneratorEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +14,9 @@ public class ModBlockEntity
 {
     public static final BlockEntityType<ElectricGeneratorEntity> ELECTRIC_GENERATOR_ENTITY =
             register("counter", ElectricGeneratorEntity::new, AddBlockMod.electric_generator);
+
+    public static final BlockEntityType<LavaGeneratorEntity> LAVA_GENERATOR_ENTITY =
+            register("lava_generator", LavaGeneratorEntity::new, AddBlockMod.lava_generator);
 
     private static <T extends BlockEntity> BlockEntityType<T> register(
             String name,
