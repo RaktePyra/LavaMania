@@ -14,19 +14,21 @@ import org.jetbrains.annotations.Nullable;
 
 public class ElectricGenerator extends BaseEntityBlock {
 
-    public ElectricGenerator(Properties settings)
-    {
+    public ElectricGenerator(Properties settings) {
         super(settings);
     }
+
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return simpleCodec(ElectricGenerator::new);
     }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ElectricGeneratorEntity(pos, state);
     }
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
         if (!(world.getBlockEntity(pos) instanceof ElectricGeneratorEntity counterBlockEntity)) {
@@ -38,4 +40,5 @@ public class ElectricGenerator extends BaseEntityBlock {
 
         return InteractionResult.SUCCESS;
     }
+    
 }
