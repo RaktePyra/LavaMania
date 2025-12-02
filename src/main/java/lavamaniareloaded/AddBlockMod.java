@@ -1,5 +1,6 @@
 package lavamaniareloaded;
 
+import lavamaniareloaded.Blocks.ElectricGenerator;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
@@ -44,9 +46,15 @@ public class AddBlockMod
             BlockBehaviour.Properties.of().sound(SoundType.STONE),
             true
     );
+    public static final Block electric_generator = register(
+            "eletric_generator",
+            ElectricGenerator::new,
+            BlockBehaviour.Properties.of().sound(SoundType.STONE),
+            true
+    );
 
-    public static void Initialise()
+    public static void Initialize()
     {
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((itemGroup) -> itemGroup.accept(AddBlockMod.lava_generator));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((itemGroup) -> itemGroup.accept(AddBlockMod.electric_generator));
     }
 }
