@@ -65,5 +65,6 @@ public class AddBlockMod
     public static void Initialize()
     {
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((itemGroup) -> itemGroup.accept(AddBlockMod.electric_generator));
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.BUILDING_BLOCKS).register((itemGroup) -> itemGroup.accept(AddBlockMod.lava_generator));
     }
 }
