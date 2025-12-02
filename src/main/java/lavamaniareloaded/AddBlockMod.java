@@ -1,7 +1,10 @@
 package lavamaniareloaded;
 
 import lavamaniareloaded.Blocks.ElectricGenerator;
+import lavamaniareloaded.Blocks.LavaGenerator;
+import lavamaniareloaded.Blocks.LavaGeneratorEntity;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -10,10 +13,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -42,7 +51,7 @@ public class AddBlockMod
 
     public static final Block lava_generator = register(
             "lava_generator",
-            Block::new,
+            LavaGenerator::new,
             BlockBehaviour.Properties.of().sound(SoundType.STONE),
             true
     );
