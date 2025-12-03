@@ -1,9 +1,8 @@
 package lavamaniareloaded.Blocks;
 
-import com.mojang.serialization.Codec;
+import lavamaniareloaded.IEnergyStorage;
 import lavamaniareloaded.LavaMania;
 import lavamaniareloaded.ModBlockEntity;
-
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
@@ -11,6 +10,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -21,24 +21,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import static net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants.BUCKET;
 
-public class ElectricGeneratorEntity extends BlockEntity {
+public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStorage {
 
     private int _ticksSinceLast = 0;
-
     public ElectricGeneratorEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntity.ELECTRIC_GENERATOR_ENTITY, pos, state);
     }
-    private SingleVariantStorage<FluidVariant> _outLavaTank = new SingleVariantStorage<>() {
-        @Override
-        protected FluidVariant getBlankVariant() {
-            return FluidVariant.blank();
-        }
-
-        @Override
-        protected long getCapacity(FluidVariant fluidVariant) {
-            return  (8 * FluidConstants.BUCKET) / 81;
-        }
-    };
     private SingleVariantStorage<FluidVariant> _inLavaTank = new SingleVariantStorage<>() {
         @Override
         protected FluidVariant getBlankVariant() {
@@ -49,7 +37,6 @@ public class ElectricGeneratorEntity extends BlockEntity {
         protected long getCapacity(FluidVariant fluidVariant) {
             return  (8 * FluidConstants.BUCKET) / 81;
         }
-
     };;
     private int clicks = 0;
     private int _outLavaMbAmount = 0;
@@ -113,12 +100,33 @@ public class ElectricGeneratorEntity extends BlockEntity {
         _outLavaMbAmount = readView.getIntOr("lavaAmount",_outLavaMbAmount);
     }
     public static void tick(Level world, BlockPos blockPos, BlockState blockState, ElectricGeneratorEntity entity) {
+        if(!world.isClientSide())
+        {
+            return;
+        }
         entity._ticksSinceLast++;
-        if(entity._ticksSinceLast >= 20 && world.isClientSide())
+        if(entity._ticksSinceLast >= 20)
         {
             entity.BurnLava();
             LavaMania.LOGGER.error("BURN");
             entity._ticksSinceLast =0;
         }
+        for(Direction direction : Direction.values())
+        {
+            if (world.getBlockEntity(blockPos.offset(direction.getUnitVec3i())) instanceof IEnergyStorage entity1)
+            {
+                entity.PushEnergy(entity1,10);
+            }
+        }
+    }
+
+    @Override
+    public void PushEnergy(IEnergyStorage destination,int EnergyAmount) {
+
+    }
+
+    @Override
+    public int GetStoredEnergyAmount() {
+        return 0;
     }
 }

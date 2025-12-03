@@ -80,5 +80,6 @@ public class ElectricGenerator extends BaseEntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, ModBlockEntity.ELECTRIC_GENERATOR_ENTITY, ElectricGeneratorEntity::tick);
     }
-    
+
+
 }
