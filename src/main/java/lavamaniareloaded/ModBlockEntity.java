@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 public class ModBlockEntity
 {
     public static final BlockEntityType<ElectricGeneratorEntity> ELECTRIC_GENERATOR_ENTITY =
-            register("counter", ElectricGeneratorEntity::new, AddBlockMod.electric_generator);
+            register("electric_generator", ElectricGeneratorEntity::new, AddBlockMod.electric_generator);
 
     public static final BlockEntityType<LavaGeneratorEntity> LAVA_GENERATOR_ENTITY =
             register("lava_generator", LavaGeneratorEntity::new, AddBlockMod.lava_generator);
