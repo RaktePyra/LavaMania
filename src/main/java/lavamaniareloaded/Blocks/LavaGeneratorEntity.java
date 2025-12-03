@@ -60,7 +60,7 @@ public class LavaGeneratorEntity extends BlockEntity
 
     public static void tick(Level world, BlockPos blockPos, BlockState blockState, LavaGeneratorEntity entity)
     {
-        if (!world.isClientSide()) {
+        if (world.isClientSide()) {
             return; // ne rien faire côté client
         }
         ItemStack fuel = entity.getStack(LavaGeneratorEntity.SLOT_FUEL);
@@ -78,6 +78,7 @@ public class LavaGeneratorEntity extends BlockEntity
                 if (output == ItemStack.EMPTY)
                 {
                     entity.setStack(LavaGeneratorEntity.SLOT_LAVA, new ItemStack(Items.LAVA_BUCKET));
+                    output = entity.getStack(LavaGeneratorEntity.SLOT_LAVA);
                 }
                 else if (output.is(Items.LAVA_BUCKET))
                 {

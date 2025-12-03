@@ -57,16 +57,16 @@ public class LavaGenerator extends BaseEntityBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type)
     {
-        return !world.isClientSide() ? null : createTickerHelper(type, ModBlockEntity.LAVA_GENERATOR_ENTITY, LavaGeneratorEntity::tick);
+        return world.isClientSide() ? null : createTickerHelper(type, ModBlockEntity.LAVA_GENERATOR_ENTITY, LavaGeneratorEntity::tick);
     }
     @Override
     protected InteractionResult useItemOn(
             ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult)
     {
         System.out.println(itemStack.toString());
-        if(!level.isClientSide()) // Sinon les events sont déclenchés en double, 1 fois sur le client et une fois sur le serveur
+        if(level.isClientSide()) // Sinon les events sont déclenchés en double, 1 fois sur le client et une fois sur le serveur
         {
-            return InteractionResult.FAIL;
+            return InteractionResult.SUCCESS;
         }
         if(interactionHand == InteractionHand.OFF_HAND)
         {
@@ -88,6 +88,25 @@ public class LavaGenerator extends BaseEntityBlock
             player.displayClientMessage(Component.literal(lavaGenerator.getStack(LavaGeneratorEntity.SLOT_COBBLE).toString()), true);
             return InteractionResult.SUCCESS;
         }
+        if (player.getMainHandItem().isEmpty() && lavaGenerator.getStack(LavaGeneratorEntity.SLOT_LAVA).getItem() == Items.LAVA_BUCKET)
+            {
+                ItemStack lavaStack = lavaGenerator.getStack(LavaGeneratorEntity.SLOT_LAVA);
+
+                if (lavaStack.getItem() == Items.LAVA_BUCKET && !lavaStack.isEmpty()) {
+                    // On copie tout le stack de seaux
+                    ItemStack toGive = lavaStack.copy();
+
+                    // On met tous les seaux dans la main du joueur
+                    player.setItemInHand(InteractionHand.MAIN_HAND, toGive);
+
+                    // On vide le slot du générateur
+                    lavaGenerator.setStack(LavaGeneratorEntity.SLOT_LAVA, ItemStack.EMPTY);
+
+                    return InteractionResult.SUCCESS;
+                }
+            }
+
+
         return InteractionResult.FAIL;
     }
 }
