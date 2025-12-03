@@ -12,9 +12,13 @@ import net.minecraft.core.BlockPos;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -23,6 +27,7 @@ import static net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants.BUCKET;
 
 public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStorage {
 
+    private int _energyAmount = 0;
     private int _ticksSinceLast = 0;
     public ElectricGeneratorEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntity.ELECTRIC_GENERATOR_ENTITY, pos, state);
@@ -78,6 +83,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
                 long amount_extracted = _inLavaTank.extract(_inLavaTank.variant,125,transaction);
                 if(amount_extracted ==125)
                 {
+                    _energyAmount+=10;
                     transaction.commit();
                     return TransactionContext.Result.COMMITTED;
                 }
@@ -100,14 +106,17 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
         _outLavaMbAmount = readView.getIntOr("lavaAmount",_outLavaMbAmount);
     }
     public static void tick(Level world, BlockPos blockPos, BlockState blockState, ElectricGeneratorEntity entity) {
-        if(!world.isClientSide())
+        if(world.isClientSide())
         {
             return;
         }
         entity._ticksSinceLast++;
         if(entity._ticksSinceLast >= 20)
         {
-            entity.BurnLava();
+            if(entity.BurnLava() == TransactionContext.Result.COMMITTED)
+            {
+                blockState.setValue(ElectricGenerator.POWER,15);
+            }
             LavaMania.LOGGER.error("BURN");
             entity._ticksSinceLast =0;
         }
@@ -121,12 +130,28 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     }
 
     @Override
-    public void PushEnergy(IEnergyStorage destination,int EnergyAmount) {
-
+    public void PushEnergy(IEnergyStorage destination,int EnergyAmount)
+    {
+        if(destination._isStorageOnly)
+        {
+            destination.ReceiveEnergy(EnergyAmount);
+            _energyAmount -= EnergyAmount;
+        }
     }
 
     @Override
     public int GetStoredEnergyAmount() {
-        return 0;
+        return _energyAmount;
+    }
+
+    @Override
+    public void ReceiveEnergy(int energy_amount)
+    {
+        _energyAmount+=energy_amount;
+    }
+
+    public void DisplayEnergyAmount()
+    {
+        LavaMania.LOGGER.info(this._energyAmount +" : energy stored");
     }
 }
