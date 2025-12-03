@@ -1,12 +1,8 @@
 package lavamaniareloaded;
 
 public interface IEnergyStorage {
-    int _energyAmount=0;
     public void PushEnergy(IEnergyStorage destination,int EnergyAmount);
+    public void ReceiveEnergy(int energy_amount);
     public int GetStoredEnergyAmount();
-    private boolean TryTransaction(int EnergyAmount)
-    {
-       return true;
-    };
-
+    public boolean _isStorageOnly =false;
 }
