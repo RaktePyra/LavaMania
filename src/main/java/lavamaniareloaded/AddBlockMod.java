@@ -56,7 +56,7 @@ public class AddBlockMod
             true
     );
     public static final Block electric_generator = register(
-            "eletric_generator",
+            "electric_generator",
             ElectricGenerator::new,
             BlockBehaviour.Properties.of().sound(SoundType.STONE),
             true
