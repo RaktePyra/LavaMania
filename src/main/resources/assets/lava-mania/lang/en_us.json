@@ -1,3 +1,4 @@
 {
-  "block.lava-mania.lava_generator" : "Lava Générator"
+  "block.lava-mania.lava_generator" : "Lava Générator",
+  "block.lava-mania.electric_generator" : "Electric Generator"
 }
