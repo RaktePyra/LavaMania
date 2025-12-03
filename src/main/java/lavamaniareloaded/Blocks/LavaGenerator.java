@@ -57,12 +57,13 @@ public class LavaGenerator extends BaseEntityBlock
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type)
     {
-        return world.isClientSide() ? null : createTickerHelper(type, ModBlockEntity.LAVA_GENERATOR_ENTITY, LavaGeneratorEntity::tick);
+        return !world.isClientSide() ? null : createTickerHelper(type, ModBlockEntity.LAVA_GENERATOR_ENTITY, LavaGeneratorEntity::tick);
     }
     @Override
     protected InteractionResult useItemOn(
             ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult)
     {
+        System.out.println(itemStack.toString());
         if(!level.isClientSide()) // Sinon les events sont déclenchés en double, 1 fois sur le client et une fois sur le serveur
         {
             return InteractionResult.FAIL;
@@ -77,14 +78,14 @@ public class LavaGenerator extends BaseEntityBlock
         }
         if(itemStack.getItem() == Items.COAL)
         {
-            lavaGenerator.setItem(LavaGeneratorEntity.SLOT_FUEL,itemStack);
-            player.displayClientMessage(Component.literal(lavaGenerator.getItem(LavaGeneratorEntity.SLOT_FUEL).toString()), true);
+            lavaGenerator.setStack(LavaGeneratorEntity.SLOT_FUEL,itemStack);
+            player.displayClientMessage(Component.literal(lavaGenerator.getStack(LavaGeneratorEntity.SLOT_FUEL).toString()), true);
             return InteractionResult.SUCCESS;
         }
         if(itemStack.getItem() == Items.COBBLESTONE)
         {
-            lavaGenerator.setItem(LavaGeneratorEntity.SLOT_COBBLE,itemStack);
-            player.displayClientMessage(Component.literal(lavaGenerator.getItem(LavaGeneratorEntity.SLOT_COBBLE).toString()), true);
+            lavaGenerator.setStack(LavaGeneratorEntity.SLOT_COBBLE,itemStack);
+            player.displayClientMessage(Component.literal(lavaGenerator.getStack(LavaGeneratorEntity.SLOT_COBBLE).toString()), true);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
