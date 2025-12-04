@@ -11,10 +11,13 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
@@ -104,7 +107,6 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
             }
             return TransactionContext.Result.ABORTED;
         }
-
     }
 
     @Override
@@ -123,6 +125,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     public static void tick(Level world, BlockPos blockPos, BlockState blockState, ElectricGeneratorEntity entity) {
         if(world.isClientSide())
         {
+
             return;
         }
         entity._ticksSinceLast++;

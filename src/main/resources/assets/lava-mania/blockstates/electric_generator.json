@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lava-mania:block/electric_generator"
+    }
+  }
+}

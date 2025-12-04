@@ -27,9 +27,13 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.ToIntFunction;
+
 public class ElectricGenerator extends BaseEntityBlock {
 
     private boolean _isLit = false;
+    private int _luminance =0;
+
     public ElectricGenerator(Properties settings) {
 
         super(settings);
@@ -125,4 +129,5 @@ public class ElectricGenerator extends BaseEntityBlock {
         this.getStateDefinition().any().setValue(LIT,false);
         level.setBlock(blockPos, (BlockState) getStateDefinition().any().setValue(LIT, false), 3);
     }
+
 }
