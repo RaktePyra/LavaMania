@@ -147,7 +147,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     @Override
     public void PushEnergy(IEnergyStorage destination,int EnergyAmount)
     {
-        if(destination.GetIsStorageOnly()&&_energyAmount>=0)
+        if(destination.GetIsStorageOnly()&&_energyAmount>0)
         {
             destination.ReceiveEnergy(EnergyAmount);
             _energyAmount -= EnergyAmount;
