@@ -11,8 +11,11 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -29,8 +32,14 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
 
     private int _energyAmount = 0;
     private int _ticksSinceLast = 0;
+    private Block _ownerBlock;
     public ElectricGeneratorEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntity.ELECTRIC_GENERATOR_ENTITY, pos, state);
+
+    }
+    public void RegisterOwner(Block owner)
+    {
+        _ownerBlock = owner;
     }
     private SingleVariantStorage<FluidVariant> _inLavaTank = new SingleVariantStorage<>() {
         @Override
@@ -78,18 +87,30 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     {
         try(Transaction transaction = Transaction.openOuter())
         {
+            ElectricGenerator owner = (ElectricGenerator) _ownerBlock;
             if(_inLavaTank.amount >= 125)
             {
+
                 long amount_extracted = _inLavaTank.extract(_inLavaTank.variant,125,transaction);
                 if(amount_extracted ==125)
                 {
                     _energyAmount+=10;
                     transaction.commit();
+                    if(owner!=null) {
+                        owner.LitGenerator();
+                        LavaMania.LOGGER.error("OWNER SET");
+                    }
                     return TransactionContext.Result.COMMITTED;
                 }
             }
+            else
+            {
+                if(owner!=null)
+                owner.UnlitGenerator(level,getBlockPos());
+            }
             return TransactionContext.Result.ABORTED;
         }
+
     }
 
     @Override
@@ -115,7 +136,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
         {
             if(entity.BurnLava() == TransactionContext.Result.COMMITTED)
             {
-                blockState.setValue(ElectricGenerator.POWER,15);
+                blockState.setValue(ElectricGenerator.LIT,true);
             }
             LavaMania.LOGGER.error("BURN");
             entity._ticksSinceLast =0;
@@ -154,4 +175,5 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     {
         LavaMania.LOGGER.info(this._energyAmount +" : energy stored");
     }
+
 }
