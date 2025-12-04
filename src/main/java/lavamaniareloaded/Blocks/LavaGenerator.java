@@ -105,6 +105,7 @@ public class LavaGenerator extends BaseEntityBlock
 
                     if (extracted == 1000) {
                         transaction.commit();
+                        lavaGenerator.liquidlava--;
 
                         // Remplace le seau vide par un seau de lave
                         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.LAVA_BUCKET));
