@@ -2,6 +2,8 @@ package lavamaniareloaded.Blocks;
 
 import com.mojang.serialization.MapCodec;
 import lavamaniareloaded.ModBlockEntity;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
@@ -88,23 +91,33 @@ public class LavaGenerator extends BaseEntityBlock
             player.displayClientMessage(Component.literal(lavaGenerator.getStack(LavaGeneratorEntity.SLOT_COBBLE).toString()), true);
             return InteractionResult.SUCCESS;
         }
-        if (player.getMainHandItem().isEmpty() && lavaGenerator.getStack(LavaGeneratorEntity.SLOT_LAVA).getItem() == Items.LAVA_BUCKET)
-            {
-                ItemStack lavaStack = lavaGenerator.getStack(LavaGeneratorEntity.SLOT_LAVA);
+        if (itemStack.getItem() == Items.BUCKET) {
+            try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+                // Vérifie si le tank contient au moins 1 seau
+                if (lavaGenerator.LavaTankOutput.getAmount() >= 1000 && lavaGenerator.LavaTankOutput.getResource().getFluid() == Fluids.LAVA) {
 
-                if (lavaStack.getItem() == Items.LAVA_BUCKET && !lavaStack.isEmpty()) {
-                    // On copie tout le stack de seaux
-                    ItemStack toGive = lavaStack.copy();
+                    // Retire 1000 mB du tank
+                    long extracted = lavaGenerator.LavaTankOutput.extract(
+                            FluidVariant.of(Fluids.LAVA),
+                            1000,
+                            transaction
+                    );
 
-                    // On met tous les seaux dans la main du joueur
-                    player.setItemInHand(InteractionHand.MAIN_HAND, toGive);
+                    if (extracted == 1000) {
+                        transaction.commit();
 
-                    // On vide le slot du générateur
-                    lavaGenerator.setStack(LavaGeneratorEntity.SLOT_LAVA, ItemStack.EMPTY);
+                        // Remplace le seau vide par un seau de lave
+                        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.LAVA_BUCKET));
 
-                    return InteractionResult.SUCCESS;
+                        lavaGenerator.setChanged();
+                        return InteractionResult.SUCCESS;
+                    } else {
+                        transaction.abort();
+                    }
                 }
             }
+        }
+
 
 
         return InteractionResult.FAIL;

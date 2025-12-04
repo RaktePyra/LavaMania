@@ -1,6 +1,10 @@
 package lavamaniareloaded.Blocks;
 
+import lavamaniareloaded.IEnergyStorage;
 import lavamaniareloaded.ModBlockEntity;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleVariantStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.ContainerHelper;
@@ -14,10 +18,11 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 
-public class LavaGeneratorEntity extends BlockEntity
+public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
 {
     private final NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
-
+    private int EnergyReceive = 0;
+    public boolean _isStorageOnly =  true;
     public static final int SLOT_FUEL = 0;
     public static final int SLOT_COBBLE = 1;
     public static final int SLOT_LAVA = 2;
@@ -27,7 +32,23 @@ public class LavaGeneratorEntity extends BlockEntity
         super(ModBlockEntity.LAVA_GENERATOR_ENTITY, pos, state);
     }
 
+    public SingleVariantStorage<FluidVariant> LavaTankOutput = new SingleVariantStorage<>()
+    {
+        @Override
+        protected FluidVariant getBlankVariant()
+        {
+            return FluidVariant.blank();
+        }
+
+        @Override
+        protected long getCapacity(FluidVariant fluidVariant)
+        {
+            return  (8 * FluidConstants.BUCKET) / 81;
+        }
+    };
+
     private int clicks = 0;
+    public static int lavaInBlock = 0;
     public int getClicks()
     {
         return clicks;
@@ -45,6 +66,7 @@ public class LavaGeneratorEntity extends BlockEntity
         ContainerHelper.saveAllItems(writeView, items);
         writeView.putInt("clicks", clicks);
         writeView.putInt("ticksSinceLast", ticksSinceLast);
+        writeView.putInt("LavaTank", lavaInBlock);
 
         super.saveAdditional(writeView);
     }
@@ -54,6 +76,7 @@ public class LavaGeneratorEntity extends BlockEntity
         super.loadAdditional(readView);
 
         clicks = readView.getIntOr("clicks", 0);
+        lavaInBlock = readView.getIntOr("LavaTank",lavaInBlock);
         ContainerHelper.loadAllItems(readView, items);
         ticksSinceLast = readView.getIntOr("ticksSinceLast",0);
     }
@@ -67,52 +90,36 @@ public class LavaGeneratorEntity extends BlockEntity
         ItemStack cobble = entity.getStack(LavaGeneratorEntity.SLOT_COBBLE);
         ItemStack output = entity.getStack(LavaGeneratorEntity.SLOT_LAVA);
 
-        entity.ticksSinceLast--;
-        if(entity.ticksSinceLast <= 0)
+        if(!fuel.isEmpty() && fuel.is(Items.COAL) && !cobble.isEmpty() && cobble.is(Items.COBBLESTONE))
         {
-            if (!fuel.isEmpty() && fuel.is(Items.COAL) && !cobble.isEmpty() && cobble.is(Items.COBBLESTONE))
+            entity.ticksSinceLast--;
+            if (entity.ticksSinceLast <= 0)
             {
                 fuel.shrink(1);
                 cobble.shrink(1);
 
-                if (output == ItemStack.EMPTY)
+                try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter())
                 {
-                    entity.setStack(LavaGeneratorEntity.SLOT_LAVA, new ItemStack(Items.LAVA_BUCKET));
-                    output = entity.getStack(LavaGeneratorEntity.SLOT_LAVA);
-                }
-                else if (output.is(Items.LAVA_BUCKET))
-                {
-                    // Si déjà de la lave, on peut stacker (selon ton design)
-                    output.grow(1);
+                    long inserted = entity.LavaTankOutput.insert(
+                            FluidVariant.of(net.minecraft.world.level.material.Fluids.LAVA),
+                            1000, // 1000 mB
+                            transaction
+                    );
+                    if (inserted == 1000)
+                    {
+                        transaction.commit();
+                        lavaInBlock++;
+                        System.out.println("Transformation : charbon + cobble → 1000 mB de lave !");
+                    } else
+                    {
+                        transaction.abort();
+                        System.out.println("Tank plein, impossible d’ajouter de la lave.");
+                    }
                 }
                 entity.setChanged();
-                System.out.println("Transformation : charbon + cobble → lave !");
+                entity.ticksSinceLast = 200;
             }
-            entity.ticksSinceLast = 200;
-        }
-        System.out.println(entity.ticksSinceLast);
-    }
-
-    public ItemStack getItem(int slot)
-    {
-        return items.get(slot);
-    }
-
-    public void setItem(int slot, ItemStack stack)
-    {
-        items.set(slot, stack);
-        setChanged(); // indique que l’état a changé
-    }
-
-    public void removeItem(int slot, int amount)
-    {
-        ItemStack stack = items.get(slot);
-        if (!stack.isEmpty()) {
-            stack.shrink(amount);
-            if (stack.getCount() <= 0) {
-                items.set(slot, ItemStack.EMPTY);
-            }
-            setChanged();
+            System.out.println(entity.ticksSinceLast);
         }
     }
 
@@ -127,5 +134,23 @@ public class LavaGeneratorEntity extends BlockEntity
             items.set(slot, stack);
             setChanged(); // informe le moteur que l’état a changé
         }
+    }
+
+    @Override
+    public void PushEnergy(IEnergyStorage destination, int EnergyAmount)
+    {
+
+    }
+
+    @Override
+    public void ReceiveEnergy(int energy_amount)
+    {
+        EnergyReceive += energy_amount;
+    }
+
+    @Override
+    public int GetStoredEnergyAmount()
+    {
+        return EnergyReceive;
     }
 }
