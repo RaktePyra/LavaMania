@@ -155,7 +155,8 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
     }
 
     @Override
-    public boolean GetIsStorageOnly() {
-        return false;
+    public boolean GetIsStorageOnly()
+    {
+        return _isStorageOnly;
     }
 }
