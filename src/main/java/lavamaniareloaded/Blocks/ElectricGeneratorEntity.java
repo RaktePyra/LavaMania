@@ -11,17 +11,11 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -153,7 +147,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     @Override
     public void PushEnergy(IEnergyStorage destination,int EnergyAmount)
     {
-        if(destination._isStorageOnly)
+        if(destination.GetIsStorageOnly())
         {
             destination.ReceiveEnergy(EnergyAmount);
             _energyAmount -= EnergyAmount;
@@ -166,6 +160,11 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     }
 
     @Override
+    public boolean GetIsStorageOnly() {
+        return false;
+    }
+
+    @Override
     public void ReceiveEnergy(int energy_amount)
     {
         _energyAmount+=energy_amount;
@@ -175,5 +174,6 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     {
         LavaMania.LOGGER.info(this._energyAmount +" : energy stored");
     }
+
 
 }
