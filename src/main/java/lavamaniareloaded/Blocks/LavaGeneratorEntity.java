@@ -48,7 +48,7 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
     };
 
     private int clicks = 0;
-    public static int lavaInBlock = 0;
+    public int liquidlava = 0;
     public int getClicks()
     {
         return clicks;
@@ -66,7 +66,6 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
         ContainerHelper.saveAllItems(writeView, items);
         writeView.putInt("clicks", clicks);
         writeView.putInt("ticksSinceLast", ticksSinceLast);
-        writeView.putInt("LavaTank", lavaInBlock);
 
         super.saveAdditional(writeView);
     }
@@ -76,7 +75,6 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
         super.loadAdditional(readView);
 
         clicks = readView.getIntOr("clicks", 0);
-        lavaInBlock = readView.getIntOr("LavaTank",lavaInBlock);
         ContainerHelper.loadAllItems(readView, items);
         ticksSinceLast = readView.getIntOr("ticksSinceLast",0);
     }
@@ -93,7 +91,7 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
         if(!fuel.isEmpty() && fuel.is(Items.COAL) && !cobble.isEmpty() && cobble.is(Items.COBBLESTONE))
         {
             entity.ticksSinceLast--;
-            if (entity.ticksSinceLast <= 0)
+            if (entity.ticksSinceLast <= 0 && entity.liquidlava < 8)
             {
                 fuel.shrink(1);
                 cobble.shrink(1);
@@ -108,7 +106,8 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
                     if (inserted == 1000)
                     {
                         transaction.commit();
-                        lavaInBlock++;
+                        entity.liquidlava++;
+
                         System.out.println("Transformation : charbon + cobble → 1000 mB de lave !");
                     } else
                     {
@@ -120,6 +119,32 @@ public class LavaGeneratorEntity extends BlockEntity implements IEnergyStorage
                 entity.ticksSinceLast = 200;
             }
             System.out.println(entity.ticksSinceLast);
+        }
+        else if(entity.EnergyReceive >= 20 && !cobble.isEmpty() && cobble.is(Items.COBBLESTONE))
+        {
+            entity.ticksSinceLast--;
+            if (entity.ticksSinceLast <= 0 && entity.liquidlava < 8) {
+                cobble.shrink(1);
+
+                try (var transaction = net.fabricmc.fabric.api.transfer.v1.transaction.Transaction.openOuter()) {
+                    long inserted = entity.LavaTankOutput.insert(
+                            FluidVariant.of(net.minecraft.world.level.material.Fluids.LAVA),
+                            1000, // 1000 mB
+                            transaction
+                    );
+                    if (inserted == 1000) {
+                        transaction.commit();
+                        entity.liquidlava++;
+                        entity.EnergyReceive = entity.EnergyReceive - 20;
+                        System.out.println("Transformation : charbon + cobble → 1000 mB de lave !");
+                    } else {
+                        transaction.abort();
+                        System.out.println("Tank plein, impossible d’ajouter de la lave.");
+                    }
+                }
+                entity.setChanged();
+                entity.ticksSinceLast = 200;
+            }
         }
     }
 
