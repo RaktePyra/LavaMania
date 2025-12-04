@@ -139,7 +139,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
         {
             if (world.getBlockEntity(blockPos.offset(direction.getUnitVec3i())) instanceof IEnergyStorage entity1)
             {
-                entity.PushEnergy(entity1,10);
+                entity.PushEnergy(entity1, entity._energyAmount);
             }
         }
     }
@@ -147,7 +147,7 @@ public class ElectricGeneratorEntity extends BlockEntity implements IEnergyStora
     @Override
     public void PushEnergy(IEnergyStorage destination,int EnergyAmount)
     {
-        if(destination.GetIsStorageOnly())
+        if(destination.GetIsStorageOnly()&&_energyAmount>=0)
         {
             destination.ReceiveEnergy(EnergyAmount);
             _energyAmount -= EnergyAmount;
